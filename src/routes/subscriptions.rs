@@ -1,3 +1,5 @@
+// To test locally after cargo run, use the command:
+// curl -vd "name=NAME&email=EMAIL" http://127.0.0.1:8000/subscriptions
 use actix_web::{web, HttpResponse};
 use chrono::Utc;
 use sqlx::PgPool;
