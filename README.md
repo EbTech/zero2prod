@@ -5,9 +5,8 @@ To start up the PostgreSQL database in a detached Docker container:
 
 Once the database is running, it's possible to run and test in the local environment with `cargo run` and `cargo test`, respectively.
 
-Once the database is running, it's also possible to statically prepare the binary's SQL queries. This repo already includes the result `sqlx-data.json`, but if necessary this can be generated using:
+Once the database is running, it's also possible to statically prepare the binary's SQL queries. This repo already includes the result `sqlx-data.json`, but if necessary this can be generated using (possibly after a `cargo clean`:
 ```
-cargo clean
 cargo sqlx prepare -- --bin zero2prod
 ```
 
@@ -29,4 +28,4 @@ To deploy the app on DigitalOcean's servers:
 doctl apps create --spec spec.yaml
 ```
 
-Note to self: find out exactly when the production environment instructions work, and why the `cargo clean` above seems to be necessary.
+Note to self: there seems to be a problem with the production environment now. `cargo clean` is often needed in order for `cargo sqlx prepare` to produce a non-empty result. Even when the latter works, the subsequent `cargo sqlx prepare --check` and `docker run` commands both fail.

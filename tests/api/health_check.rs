@@ -6,7 +6,7 @@ async fn health_check_works() {
     let app = TestApp::spawn().await;
 
     // Act
-    let response = app.post_health_check().await;
+    let response = app.get("health_check").await;
 
     // Assert
     assert!(response.status().is_success());
