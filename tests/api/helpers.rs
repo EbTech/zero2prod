@@ -1,3 +1,4 @@
+use once_cell::sync::Lazy;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
 use wiremock::MockServer;
@@ -5,13 +6,18 @@ use zero2prod::configuration::{get_configuration, DatabaseSettings};
 use zero2prod::startup::{get_connection_pool, Application};
 use zero2prod::telemetry::{get_subscriber, init_subscriber};
 
-lazy_static::lazy_static! {
-    static ref TRACING: () = {
-        let filter = if std::env::var("TEST_LOG").is_ok() { "debug" } else { "" };
-        let subscriber = get_subscriber("test".into(), filter.into());
+// Ensure that the `tracing` stack is only initialised once using `once_cell`
+static TRACING: Lazy<()> = Lazy::new(|| {
+    let default_filter_level = "info".to_string();
+    let subscriber_name = "test".to_string();
+    if std::env::var("TEST_LOG").is_ok() {
+        let subscriber = get_subscriber(subscriber_name, default_filter_level, std::io::stdout);
+        init_subscriber(subscriber);
+    } else {
+        let subscriber = get_subscriber(subscriber_name, default_filter_level, std::io::sink);
         init_subscriber(subscriber);
     };
-}
+});
 
 pub struct ConfirmationLinks {
     pub html: reqwest::Url,
@@ -29,7 +35,7 @@ impl TestApp {
     /// Start a test instance of our app.
     pub async fn spawn() -> Self {
         // `TRACING` is only executed the first time `initialize` is invoked.
-        lazy_static::initialize(&TRACING);
+        Lazy::force(&TRACING);
 
         // Launch a mock server to stand in for Postmark's API
         let email_server = MockServer::start().await;
