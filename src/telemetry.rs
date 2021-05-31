@@ -6,13 +6,13 @@ use tracing_subscriber::{fmt::MakeWriter, layer::SubscriberExt, EnvFilter, Regis
 
 /// Compose multiple layers into a `tracing`'s subscriber.
 pub fn get_subscriber(
-    name: String,
     env_filter: String,
     sink: impl MakeWriter + Send + Sync + 'static,
 ) -> impl Subscriber + Sync + Send {
     let env_filter =
         EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new(env_filter));
-    let formatting_layer = BunyanFormattingLayer::new(name, sink);
+    let app_name = format!("{}-{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
+    let formatting_layer = BunyanFormattingLayer::new(app_name, sink);
     Registry::default()
         .with(env_filter)
         .with(JsonStorageLayer)
