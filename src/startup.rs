@@ -2,6 +2,7 @@ use crate::configuration::{DatabaseSettings, Settings};
 use crate::email_client::EmailClient;
 use crate::routes::{confirm, health_check, subscribe};
 use actix_web::dev::Server;
+use actix_web::web::Data;
 use actix_web::{web, App, HttpServer};
 use reqwest::Url;
 use sqlx::postgres::PgPoolOptions;
@@ -68,8 +69,9 @@ pub fn run(
     email_client: EmailClient,
     base_url: String,
 ) -> Result<Server, std::io::Error> {
-    let db_pool = web::Data::new(db_pool);
-    let email_client = web::Data::new(email_client);
+    let db_pool = Data::new(db_pool);
+    let email_client = Data::new(email_client);
+    let base_url = Data::new(ApplicationBaseUrl(base_url));
     let server = HttpServer::new(move || {
         App::new()
             .wrap(TracingLogger::default())
@@ -78,7 +80,7 @@ pub fn run(
             .route("/subscriptions/confirm", web::get().to(confirm))
             .app_data(db_pool.clone())
             .app_data(email_client.clone())
-            .data(ApplicationBaseUrl(base_url.clone()))
+            .app_data(base_url.clone())
     })
     .listen(listener)?
     .run();
