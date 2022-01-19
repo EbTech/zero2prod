@@ -11,7 +11,6 @@ use chrono::Utc;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 use sqlx::{PgPool, Postgres, Transaction};
-use std::convert::{TryFrom, TryInto};
 use uuid::Uuid;
 
 #[derive(serde::Deserialize)]
@@ -57,8 +56,8 @@ impl ResponseError for SubscribeError {
     name = "Adding a new subscriber",
     skip(form, pool, email_client, base_url),
     fields(
-        email = %form.email,
-        name = %form.name
+        subscriber_email = %form.email,
+        subscriber_name = %form.name
     )
 )]
 pub async fn subscribe(

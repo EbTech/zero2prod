@@ -1,16 +1,16 @@
-FROM lukemathwalker/cargo-chef:latest-rust-1.53.0 as planner
+FROM lukemathwalker/cargo-chef:latest-rust-1.58.0 as planner
 WORKDIR /app
 COPY . .
 # Compute a lock-like file for our project
 RUN cargo chef prepare --recipe-path recipe.json
 
-FROM lukemathwalker/cargo-chef:latest-rust-1.53.0 as cacher
+FROM lukemathwalker/cargo-chef:latest-rust-1.58.0 as cacher
 WORKDIR /app
 COPY --from=planner /app/recipe.json recipe.json
 # Build our project dependencies, not our application!
 RUN cargo chef cook --release --recipe-path recipe.json
 
-FROM rust:1.54 AS builder
+FROM rust:1.58 AS builder
 WORKDIR /app
 # Copy over the cached dependencies
 COPY --from=cacher /app/target target

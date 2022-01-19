@@ -1,3 +1,10 @@
+Make sure you have the following installed:
+- [Rust](https://www.rust-lang.org/tools/install)
+- OpenSSL
+- Docker (might need to follow up with `systemctl start docker`)
+- [psql command-line client](https://blog.timescale.com/blog/how-to-install-psql-on-mac-ubuntu-debian-windows)
+- sqlx-cli (see `init_db.sh` for instructions)
+
 To start up the PostgreSQL database in a detached Docker container:
 ```
 ./scripts/init_db.sh
