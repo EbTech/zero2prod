@@ -12,7 +12,7 @@ To start up the PostgreSQL database in a detached Docker container:
 
 Once the database is running, it's possible to run and test in the local environment with `cargo run` and `cargo test`, respectively.
 
-Once the database is running, it's also possible to statically prepare the binary's SQL queries. This repo already includes the result `sqlx-data.json`, but if necessary this can be generated using (possibly after a `cargo clean`:
+Once the database is running, it's also possible to statically prepare the binary's SQL queries. This repo already includes the result `sqlx-data.json`, but if necessary this can be generated using (possibly after a `cargo clean`):
 ```
 cargo sqlx prepare -- --bin zero2prod
 ```

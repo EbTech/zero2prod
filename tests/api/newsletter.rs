@@ -20,7 +20,7 @@ async fn create_unconfirmed_subscriber(app: &TestApp) -> ConfirmationLinks {
         .unwrap();
 
     // We now inspect the requests received by the mock Postmark server
-    // to retrieve the confirmation link and return it 
+    // to retrieve the confirmation link and return it
     let email_request = &app
         .email_server
         .received_requests()
@@ -54,7 +54,7 @@ async fn newsletters_are_not_delivered_to_unconfirmed_subscribers() {
         .await;
 
     // Act
-    
+
     // A sketch of the newsletter payload structure.
     // We might change it later on.
     let newsletter_request_body = serde_json::json!({
@@ -68,7 +68,7 @@ async fn newsletters_are_not_delivered_to_unconfirmed_subscribers() {
 
     // Assert
     assert_eq!(response.status().as_u16(), 200);
-    // Mock verifies on Drop that we haven't sent the newsletter email 
+    // Mock verifies on Drop that we haven't sent the newsletter email
 }
 
 #[tokio::test]
@@ -120,7 +120,7 @@ async fn newsletters_returns_400_for_invalid_data() {
     ];
 
     for (invalid_body, error_message) in test_cases {
-        let response = app.post_newsletters(&newsletter_request_body).await;
+        let response = app.post_newsletters(&invalid_body).await;
 
         // Assert
         assert_eq!(
