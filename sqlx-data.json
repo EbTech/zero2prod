@@ -58,6 +58,32 @@
       "nullable": []
     }
   },
+  "acf1b96c82ddf18db02e71a0e297c822b46f10add52c54649cf599b883165e58": {
+    "query": "\n        SELECT user_id, password_hash\n        FROM users\n        WHERE username = $1\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "user_id",
+          "type_info": "Uuid"
+        },
+        {
+          "ordinal": 1,
+          "name": "password_hash",
+          "type_info": "Text"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false,
+        false
+      ]
+    }
+  },
   "ad120337ee606be7b8d87238e2bb765d0da8ee61b1a3bc142414c4305ec5e17f": {
     "query": "SELECT subscriber_id FROM subscription_tokens WHERE subscription_token = $1",
     "describe": {
