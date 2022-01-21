@@ -35,7 +35,7 @@ validator = "0.14.0"
 thiserror = "1.0"
 anyhow = "1.0"
 base64 = "0.13"
-secrecy = "0.8"
+secrecy = { version = "0.8", features = ["serde"] }
 argon2 = { version = "0.3.2", features = ["std"] }
 
 [dev-dependencies]

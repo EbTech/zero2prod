@@ -54,17 +54,18 @@ impl TestApp {
         };
 
         // Create and migrate the database
-        configure_database(&configuration.database).await;
+        let database_settings = configuration.database.clone();
+        configure_database(&database_settings).await;
 
         // Launch the application as a background task
-        let application = Application::build(&configuration)
+        let application = Application::build(configuration)
             .await
             .expect("Failed to build application.");
         let port = application.port();
         let _ = tokio::spawn(application.run_until_stopped());
 
         let address = format!("http://localhost:{}", port);
-        let db_pool = get_connection_pool(&configuration.database)
+        let db_pool = get_connection_pool(&database_settings)
             .await
             .expect("Failed to connect to the database");
 

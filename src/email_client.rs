@@ -1,19 +1,22 @@
 use crate::domain::SubscriberEmail;
 use reqwest::{Client, Url};
+use secrecy::{ExposeSecret, Secret};
 
 pub struct EmailClient {
     http_client: Client,
     base_url: Url,
     sender: SubscriberEmail,
-    authorization_token: String,
+    authorization_token: Secret<String>,
 }
 
 impl EmailClient {
-    pub fn new(base_url: Url, sender: SubscriberEmail, authorization_token: String) -> Self {
-        let http_client = Client::builder()
-            .timeout(std::time::Duration::from_secs(10))
-            .build()
-            .unwrap();
+    pub fn new(
+        base_url: Url,
+        sender: SubscriberEmail,
+        authorization_token: Secret<String>,
+        timeout: std::time::Duration,
+    ) -> Self {
+        let http_client = Client::builder().timeout(timeout).build().unwrap();
         Self {
             http_client,
             base_url,
@@ -39,7 +42,10 @@ impl EmailClient {
         };
         self.http_client
             .post(url)
-            .header("X-Postmark-Server-Token", &self.authorization_token)
+            .header(
+                "X-Postmark-Server-Token",
+                self.authorization_token.expose_secret(),
+            )
             .json(&request_body)
             .send()
             .await?
@@ -66,6 +72,7 @@ mod tests {
     use fake::faker::internet::en::SafeEmail;
     use fake::faker::lorem::en::{Paragraph, Sentence};
     use fake::{Fake, Faker};
+    use secrecy::Secret;
     use wiremock::matchers::{any, header, header_exists, method, path};
     use wiremock::{Mock, MockServer, Request, ResponseTemplate};
 
@@ -100,7 +107,9 @@ mod tests {
 
     fn email_client(base_url: &str) -> EmailClient {
         let base_url = Url::parse(base_url).unwrap();
-        EmailClient::new(base_url, email(), Faker.fake())
+        let auth_token = Secret::new(Faker.fake());
+        let timeout = std::time::Duration::from_millis(200);
+        EmailClient::new(base_url, email(), auth_token, timeout)
     }
 
     #[tokio::test]

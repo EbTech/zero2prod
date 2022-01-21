@@ -2,7 +2,7 @@ use zero2prod::configuration::get_configuration;
 use zero2prod::startup::Application;
 use zero2prod::telemetry::{get_subscriber, init_subscriber};
 
-#[actix_web::main]
+#[tokio::main]
 async fn main() -> std::io::Result<()> {
     // Set up tracing telemetry.
     let subscriber = get_subscriber("info".into(), std::io::stdout);
@@ -10,7 +10,7 @@ async fn main() -> std::io::Result<()> {
 
     // Start web app and database.
     let configuration = get_configuration().expect("Failed to read configuration.");
-    let application = Application::build(&configuration).await?;
+    let application = Application::build(configuration).await?;
     application.run_until_stopped().await?;
     Ok(())
 }

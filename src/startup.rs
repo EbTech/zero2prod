@@ -16,7 +16,7 @@ pub struct Application {
 }
 
 impl Application {
-    pub async fn build(configuration: &Settings) -> Result<Self, std::io::Error> {
+    pub async fn build(configuration: Settings) -> Result<Self, std::io::Error> {
         let connection_pool = get_connection_pool(&configuration.database)
             .await
             .expect("Failed to connect to Postgres.");
@@ -26,8 +26,9 @@ impl Application {
             .email_client
             .sender()
             .expect("Invalid sender email address.");
-        let auth_token = configuration.email_client.authorization_token.clone();
-        let email_client = EmailClient::new(base_url, sender_email, auth_token);
+        let timeout = configuration.email_client.timeout();
+        let auth_token = configuration.email_client.authorization_token;
+        let email_client = EmailClient::new(base_url, sender_email, auth_token, timeout);
 
         let address = format!(
             "{}:{}",
@@ -39,7 +40,7 @@ impl Application {
             listener,
             connection_pool,
             email_client,
-            configuration.application.base_url.clone(),
+            configuration.application.base_url,
         )?;
 
         Ok(Self { port, server })
