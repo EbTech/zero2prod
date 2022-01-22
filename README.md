@@ -35,4 +35,11 @@ To deploy the app on DigitalOcean's servers:
 doctl apps create --spec spec.yaml
 ```
 
+To speed up the inner development loop, install a fast linker as explained in `.cargo/confit.toml`, then
+```
+cargo install bunyan
+cargo install cargo-watch
+cargo watch -x check -x test -x "run | bunyan"
+```
+
 Note to self: there seems to be a problem with the production environment now. `cargo clean` is often needed in order for `cargo sqlx prepare` to produce a non-empty result. Even when the latter works, the subsequent `cargo sqlx prepare --check` and `docker run` commands both fail.
