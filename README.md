@@ -1,3 +1,5 @@
+My adventures in Luca Palmieri's [Zero To Production In Rust](https://www.zero2prod.com).
+
 Make sure you have the following installed:
 - [Rust](https://www.rust-lang.org/tools/install)
 - OpenSSL
@@ -5,9 +7,10 @@ Make sure you have the following installed:
 - [psql command-line client](https://blog.timescale.com/blog/how-to-install-psql-on-mac-ubuntu-debian-windows)
 - sqlx-cli (see `init_db.sh` for instructions)
 
-To start up the PostgreSQL database in a detached Docker container:
+To start up the PostgreSQL and Redis databases in a detached Docker container:
 ```
 ./scripts/init_db.sh
+./scripts/init_redis.sh
 ```
 
 Once the database is running, it's possible to run and test in the local environment with `cargo run` and `cargo test`, respectively.

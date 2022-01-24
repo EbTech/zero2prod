@@ -31,6 +31,7 @@ pub struct TestApp {
     pub db_pool: PgPool,
     pub email_server: MockServer,
     pub test_user: TestUser,
+    pub api_client: reqwest::Client,
 }
 
 impl TestApp {
@@ -71,6 +72,11 @@ impl TestApp {
 
         let test_user = TestUser::generate();
         test_user.store(&db_pool).await;
+        let api_client = reqwest::Client::builder()
+            .redirect(reqwest::redirect::Policy::none())
+            .cookie_store(true)
+            .build()
+            .unwrap();
 
         Self {
             address,
@@ -78,6 +84,7 @@ impl TestApp {
             db_pool,
             email_server,
             test_user,
+            api_client,
         }
     }
 
@@ -105,7 +112,7 @@ impl TestApp {
     }
 
     pub async fn get(&self, endpoint: &str) -> reqwest::Response {
-        reqwest::Client::new()
+        self.api_client
             .get(&format!("{}/{}", &self.address, endpoint))
             .send()
             .await
@@ -113,7 +120,7 @@ impl TestApp {
     }
 
     pub async fn post_subscriptions(&self, body: String) -> reqwest::Response {
-        reqwest::Client::new()
+        self.api_client
             .post(&format!("{}/subscriptions", &self.address))
             .header("Content-Type", "application/x-www-form-urlencoded")
             .body(body)
@@ -123,10 +130,26 @@ impl TestApp {
     }
 
     pub async fn post_newsletters(&self, body: &serde_json::Value) -> reqwest::Response {
-        reqwest::Client::new()
+        self.api_client
             .post(&format!("{}/newsletters", &self.address))
             .basic_auth(&self.test_user.username, Some(&self.test_user.password))
             .json(body)
+            .send()
+            .await
+            .expect("Failed to execute request.")
+    }
+
+    pub async fn get_login(&self) -> reqwest::Response {
+        self.get("login").await
+    }
+
+    pub async fn post_login<Body>(&self, body: &Body) -> reqwest::Response
+    where
+        Body: serde::Serialize,
+    {
+        self.api_client
+            .post(&format!("{}/login", &self.address))
+            .form(body)
             .send()
             .await
             .expect("Failed to execute request.")
