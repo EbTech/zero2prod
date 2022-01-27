@@ -119,6 +119,18 @@ impl TestApp {
             .expect("Failed to execute request.")
     }
 
+    pub async fn post_form<Body>(&self, endpoint: &str, body: &Body) -> reqwest::Response
+    where
+        Body: serde::Serialize,
+    {
+        self.api_client
+            .post(&format!("{}/{}", &self.address, endpoint))
+            .form(body)
+            .send()
+            .await
+            .expect("Failed to execute request.")
+    }
+
     pub async fn get_health_check(&self) -> reqwest::Response {
         self.get("health_check").await
     }
@@ -133,14 +145,15 @@ impl TestApp {
             .expect("Failed to execute request.")
     }
 
-    pub async fn post_newsletters(&self, body: &serde_json::Value) -> reqwest::Response {
-        self.api_client
-            .post(&format!("{}/newsletters", &self.address))
-            .basic_auth(&self.test_user.username, Some(&self.test_user.password))
-            .json(body)
-            .send()
-            .await
-            .expect("Failed to execute request.")
+    pub async fn get_publish_newsletter(&self) -> reqwest::Response {
+        self.get("admin/newsletters").await
+    }
+
+    pub async fn post_publish_newsletter<Body>(&self, body: &Body) -> reqwest::Response
+    where
+        Body: serde::Serialize,
+    {
+        self.post_form("admin/newsletters", body).await
     }
 
     pub async fn get_login(&self) -> reqwest::Response {
@@ -151,12 +164,22 @@ impl TestApp {
     where
         Body: serde::Serialize,
     {
-        self.api_client
-            .post(&format!("{}/login", &self.address))
-            .form(body)
-            .send()
-            .await
-            .expect("Failed to execute request.")
+        self.post_form("login", body).await
+    }
+
+    pub async fn test_login(&self) {
+        let response = self
+            .post_login(&serde_json::json!({
+                "username": &self.test_user.username,
+                "password": &self.test_user.password
+            }))
+            .await;
+
+        assert_eq!(response.status().as_u16(), 303);
+        assert_eq!(
+            response.headers().get("Location").unwrap(),
+            "/admin/dashboard"
+        );
     }
 
     pub async fn post_logout(&self) -> reqwest::Response {
@@ -179,12 +202,7 @@ impl TestApp {
     where
         Body: serde::Serialize,
     {
-        self.api_client
-            .post(&format!("{}/admin/password", &self.address))
-            .form(body)
-            .send()
-            .await
-            .expect("Failed to execute request.")
+        self.post_form("admin/password", body).await
     }
 }
 
