@@ -28,7 +28,7 @@ pub async fn change_password_form(
     <title>Change Password</title>
 </head>
 <body>
-    {}
+    {msg_html}
     <form action="/admin/password" method="post">
         <label>Current password
             <input
@@ -59,6 +59,5 @@ pub async fn change_password_form(
     <p><a href="/admin/dashboard">&lt;- Back</a></p>
 </body>
 </html>"#,
-            msg_html
         )))
 }

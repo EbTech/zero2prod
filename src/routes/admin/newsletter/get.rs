@@ -28,8 +28,8 @@ pub async fn publish_newsletter_form(
     <title>Publish Newsletter Issue</title>
 </head>
 <body>
-    {}
-    <form action="/admin/newsletters" method="post">
+    {msg_html}
+    <form action="/admin/newsletter" method="post">
         <label>Title:<br>
             <input
                 type="text"
@@ -61,6 +61,5 @@ pub async fn publish_newsletter_form(
     <p><a href="/admin/dashboard">&lt;- Back</a></p>
 </body>
 </html>"#,
-            msg_html
         )))
 }

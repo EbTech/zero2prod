@@ -146,14 +146,14 @@ impl TestApp {
     }
 
     pub async fn get_publish_newsletter(&self) -> reqwest::Response {
-        self.get("admin/newsletters").await
+        self.get("admin/newsletter").await
     }
 
     pub async fn post_publish_newsletter<Body>(&self, body: &Body) -> reqwest::Response
     where
         Body: serde::Serialize,
     {
-        self.post_form("admin/newsletters", body).await
+        self.post_form("admin/newsletter", body).await
     }
 
     pub async fn get_login(&self) -> reqwest::Response {
@@ -175,11 +175,7 @@ impl TestApp {
             }))
             .await;
 
-        assert_eq!(response.status().as_u16(), 303);
-        assert_eq!(
-            response.headers().get("Location").unwrap(),
-            "/admin/dashboard"
-        );
+        assert_is_redirect_to(&response, "/admin/dashboard");
     }
 
     pub async fn post_logout(&self) -> reqwest::Response {
@@ -266,4 +262,9 @@ impl TestUser {
         .await
         .expect("Failed to store test user.");
     }
+}
+
+pub fn assert_is_redirect_to(response: &reqwest::Response, location: &str) {
+    assert_eq!(response.status().as_u16(), 303);
+    assert_eq!(response.headers().get("Location").unwrap(), location);
 }

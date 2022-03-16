@@ -1,4 +1,4 @@
-use crate::helpers::TestApp;
+use crate::helpers::{assert_is_redirect_to, TestApp};
 use uuid::Uuid;
 use zero2prod::routes::{PASSWORD_MAX_LEN, PASSWORD_MIN_LEN};
 
@@ -11,8 +11,7 @@ async fn you_must_be_logged_in_to_see_the_change_password_form() {
     let response = app.get_change_password().await;
 
     // Assert
-    assert_eq!(response.status().as_u16(), 303);
-    assert_eq!(response.headers().get("Location").unwrap(), "/login");
+    assert_is_redirect_to(&response, "/login");
 }
 
 #[tokio::test]
@@ -31,8 +30,7 @@ async fn you_must_be_logged_in_to_change_your_password() {
         .await;
 
     // Assert
-    assert_eq!(response.status().as_u16(), 303);
-    assert_eq!(response.headers().get("Location").unwrap(), "/login");
+    assert_is_redirect_to(&response, "/login");
 }
 
 #[tokio::test]
@@ -51,11 +49,7 @@ async fn new_password_fields_must_match() {
             "new_password_check": &another_new_password,
         }))
         .await;
-    assert_eq!(response.status().as_u16(), 303);
-    assert_eq!(
-        response.headers().get("Location").unwrap(),
-        "/admin/password"
-    );
+    assert_is_redirect_to(&response, "/admin/password");
 
     // Act - Part 2 - Follow the redirect
     let response = app.get_change_password().await;
@@ -82,11 +76,7 @@ async fn current_password_must_be_valid() {
             "new_password_check": &new_password,
         }))
         .await;
-    assert_eq!(response.status().as_u16(), 303);
-    assert_eq!(
-        response.headers().get("Location").unwrap(),
-        "/admin/password"
-    );
+    assert_is_redirect_to(&response, "/admin/password");
 
     // Act - Part 2 - Follow the redirect
     let response = app.get_change_password().await;
@@ -106,11 +96,7 @@ async fn try_new_password(app: &TestApp, new_password: &str) -> String {
             "new_password_check": new_password,
         }))
         .await;
-    assert_eq!(response.status().as_u16(), 303);
-    assert_eq!(
-        response.headers().get("Location").unwrap(),
-        "/admin/password"
-    );
+    assert_is_redirect_to(&response, "/admin/password");
 
     // Follow the redirect
     let response = app.get_change_password().await;
@@ -129,8 +115,7 @@ async fn changing_password_works() {
 
     // Act - Part 2 - Logout
     let response = app.post_logout().await;
-    assert_eq!(response.status().as_u16(), 303);
-    assert_eq!(response.headers().get("Location").unwrap(), "/login");
+    assert_is_redirect_to(&response, "/login");
 
     // Act - Part 3 - Follow the redirect
     let html_page = app.get_login().await.text().await.unwrap();
@@ -142,11 +127,7 @@ async fn changing_password_works() {
         "password": &new_password
     });
     let response = app.post_login(&login_body).await;
-    assert_eq!(response.status().as_u16(), 303);
-    assert_eq!(
-        response.headers().get("Location").unwrap(),
-        "/admin/dashboard"
-    );
+    assert_is_redirect_to(&response, "/admin/dashboard");
 }
 
 #[tokio::test]

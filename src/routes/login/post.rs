@@ -19,6 +19,7 @@ pub struct FormData {
     skip(form, pool, session),
     fields(username=tracing::field::Empty, user_id=tracing::field::Empty)
 )]
+// We are now injecting `PgPool` to retrieve stored credentials from the database
 pub async fn login(
     form: web::Form<FormData>,
     pool: web::Data<PgPool>,

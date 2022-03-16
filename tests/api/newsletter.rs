@@ -1,4 +1,4 @@
-use crate::helpers::{ConfirmationLinks, TestApp};
+use crate::helpers::{assert_is_redirect_to, ConfirmationLinks, TestApp};
 use wiremock::matchers::{any, method, path};
 use wiremock::{Mock, ResponseTemplate};
 
@@ -61,11 +61,7 @@ async fn newsletters_are_not_delivered_to_unconfirmed_subscribers() {
         "html_content": "<p>Newsletter body as HTML</p>",
     });
     let response = app.post_publish_newsletter(&newsletter_request_body).await;
-    assert_eq!(response.status().as_u16(), 303);
-    assert_eq!(
-        response.headers().get("Location").unwrap(),
-        "/admin/newsletters"
-    );
+    assert_is_redirect_to(&response, "/admin/newsletter");
 
     // Act - Part 2 - Follow the redirect
     let response = app.get_publish_newsletter().await;
@@ -95,11 +91,7 @@ async fn newsletters_are_delivered_to_confirmed_subscribers() {
         "html_content": "<p>Newsletter body as HTML</p>",
     });
     let response = app.post_publish_newsletter(&newsletter_request_body).await;
-    assert_eq!(response.status().as_u16(), 303);
-    assert_eq!(
-        response.headers().get("Location").unwrap(),
-        "/admin/newsletters"
-    );
+    assert_is_redirect_to(&response, "/admin/newsletter");
 
     // Act - Part 2 - Follow the redirect
     let response = app.get_publish_newsletter().await;
@@ -117,8 +109,7 @@ async fn you_must_be_logged_in_to_see_the_newsletter_form() {
     let response = app.get_publish_newsletter().await;
 
     // Assert
-    assert_eq!(response.status().as_u16(), 303);
-    assert_eq!(response.headers().get("Location").unwrap(), "/login");
+    assert_is_redirect_to(&response, "/login");
 }
 
 #[tokio::test]
@@ -135,8 +126,7 @@ async fn you_must_be_logged_in_to_publish_a_newsletter() {
     let response = app.post_publish_newsletter(&newsletter_request_body).await;
 
     // Assert
-    assert_eq!(response.status().as_u16(), 303);
-    assert_eq!(response.headers().get("Location").unwrap(), "/login");
+    assert_is_redirect_to(&response, "/login");
 }
 
 #[tokio::test]
