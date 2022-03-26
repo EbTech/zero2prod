@@ -33,6 +33,45 @@
       ]
     }
   },
+  "429f0897a3c43dca32af247947c1ddd6d6ddb3240e39400ebd68f60cc6f07bbd": {
+    "query": "\n        INSERT INTO idempotency (\n            user_id,\n            idempotency_key,\n            response_status_code,\n            response_headers,\n            response_body,\n            created_at\n        )\n        VALUES ($1, $2, $3, $4, $5, now())\n        ",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Text",
+          "Int2",
+          {
+            "Custom": {
+              "name": "_header_pair",
+              "kind": {
+                "Array": {
+                  "Custom": {
+                    "name": "header_pair",
+                    "kind": {
+                      "Composite": [
+                        [
+                          "name",
+                          "Text"
+                        ],
+                        [
+                          "value",
+                          "Bytea"
+                        ]
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "Bytea"
+        ]
+      },
+      "nullable": []
+    }
+  },
   "51c9c995452d3359e3da7e2f2ff8a6e68690f740a36d2a32ec7c40b08931ebdb": {
     "query": "\n    INSERT INTO subscriptions (id, email, name, subscribed_at, status)\n    VALUES ($1, $2, $3, $4, 'pending_confirmation')\n            ",
     "describe": {
@@ -133,6 +172,62 @@
         ]
       },
       "nullable": [
+        false
+      ]
+    }
+  },
+  "df69982cd4d049edef8d4872c521db950996ac1b50664fd3d8e895dfff418a99": {
+    "query": "\n        SELECT \n            response_status_code,\n            response_headers as \"response_headers: Vec<HeaderPairRecord>\",\n            response_body\n        FROM idempotency\n        WHERE \n          user_id = $1 AND\n          idempotency_key = $2\n        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "response_status_code",
+          "type_info": "Int2"
+        },
+        {
+          "ordinal": 1,
+          "name": "response_headers: Vec<HeaderPairRecord>",
+          "type_info": {
+            "Custom": {
+              "name": "_header_pair",
+              "kind": {
+                "Array": {
+                  "Custom": {
+                    "name": "header_pair",
+                    "kind": {
+                      "Composite": [
+                        [
+                          "name",
+                          "Text"
+                        ],
+                        [
+                          "value",
+                          "Bytea"
+                        ]
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 2,
+          "name": "response_body",
+          "type_info": "Bytea"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Uuid",
+          "Text"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
         false
       ]
     }
